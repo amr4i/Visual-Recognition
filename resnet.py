@@ -88,9 +88,9 @@ validation_generator = data_generator.flow_from_directory(
         class_mode='categorical') 
 
 # Max number of steps that these generator will have opportunity to process their source content
-len(train_generator) should be 'no. of available train images / BATCH_SIZE_TRAINING'
-len(valid_generator) should be 'no. of available train images / BATCH_SIZE_VALIDATION'
-(BATCH_SIZE_TRAINING, len(train_generator), BATCH_SIZE_VALIDATION, len(validation_generator))
+# len(train_generator) should be 'no. of available train images / BATCH_SIZE_TRAINING'
+# len(valid_generator) should be 'no. of available train images / BATCH_SIZE_VALIDATION'
+# (BATCH_SIZE_TRAINING, len(train_generator), BATCH_SIZE_VALIDATION, len(validation_generator))
 
 cb_early_stopper = EarlyStopping(monitor = 'val_loss', patience = EARLY_STOP_PATIENCE)
 cb_checkpointer = ModelCheckpoint(filepath = '../working/resnet_model.hdf5', monitor = 'val_loss', save_best_only = True, mode = 'auto')
