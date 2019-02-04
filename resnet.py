@@ -12,7 +12,7 @@ from tensorflow.python.keras import optimizers
 
 from keras.applications.resnet50 import preprocess_input
 from keras.preprocessing.image import ImageDataGenerator
-
+from keras.models import model_from_json
 from tensorflow.python.keras.callbacks import EarlyStopping, ModelCheckpoint
 
 
@@ -93,7 +93,7 @@ len(valid_generator) should be 'no. of available train images / BATCH_SIZE_VALID
 (BATCH_SIZE_TRAINING, len(train_generator), BATCH_SIZE_VALIDATION, len(validation_generator))
 
 cb_early_stopper = EarlyStopping(monitor = 'val_loss', patience = EARLY_STOP_PATIENCE)
-cb_checkpointer = ModelCheckpoint(filepath = '../working/best.hdf5', monitor = 'val_loss', save_best_only = True, mode = 'auto')
+cb_checkpointer = ModelCheckpoint(filepath = '../working/resnet_model.hdf5', monitor = 'val_loss', save_best_only = True, mode = 'auto')
 
 # Pseudo code for hyperparameters Grid Search
 
@@ -117,84 +117,91 @@ fit_history = model.fit_generator(
         callbacks=[cb_checkpointer, cb_early_stopper]
 )
 
+model_json = model.to_json()
+with open("model_resnet.json", "w") as json_file:
+    json_file.write(model_json)
+# serialize weights to HDF5
+model.save_weights("model_resnet.h5")
 
-model.load_weights("../working/resnet_model_1.hdf5")
+print("Saved model to disk")
+
+# model.load_weights("../working/resnet_model.hdf5")
 
 print(fit_history.history.keys())
 
-plt.figure(1, figsize = (15,8)) 
+# plt.figure(1, figsize = (15,8)) 
     
-plt.subplot(221)  
-plt.plot(fit_history.history['acc'])  
-plt.plot(fit_history.history['val_acc'])  
-plt.title('model accuracy')  
-plt.ylabel('accuracy')  
-plt.xlabel('epoch')  
-plt.legend(['train', 'valid']) 
+# plt.subplot(221)  
+# plt.plot(fit_history.history['acc'])  
+# plt.plot(fit_history.history['val_acc'])  
+# plt.title('model accuracy')  
+# plt.ylabel('accuracy')  
+# plt.xlabel('epoch')  
+# plt.legend(['train', 'valid']) 
     
-plt.subplot(222)  
-plt.plot(fit_history.history['loss'])  
-plt.plot(fit_history.history['val_loss'])  
-plt.title('model loss')  
-plt.ylabel('loss')  
-plt.xlabel('epoch')  
-plt.legend(['train', 'valid']) 
+# plt.subplot(222)  
+# plt.plot(fit_history.history['loss'])  
+# plt.plot(fit_history.history['val_loss'])  
+# plt.title('model loss')  
+# plt.ylabel('loss')  
+# plt.xlabel('epoch')  
+# plt.legend(['train', 'valid']) 
 
-plt.show()
+# plt.show()
 
-# NOTE that flow_from_directory treats each sub-folder as a class which works fine for training data
-# Actually class_mode=None is a kind of workaround for test data which too must be kept in a subfolder
+# # NOTE that flow_from_directory treats each sub-folder as a class which works fine for training data
+# # Actually class_mode=None is a kind of workaround for test data which too must be kept in a subfolder
 
-# batch_size can be 1 or any factor of test dataset size to ensure that test dataset is samples just once, i.e., no data is left out
-test_generator = data_generator.flow_from_directory(
-    directory = '../sample_test',
-    target_size = (image_size, image_size),
-    batch_size = BATCH_SIZE_TESTING,
-    class_mode = None,
-    shuffle = False,
-    seed = 123
-)
+# # batch_size can be 1 or any factor of test dataset size to ensure that test dataset is samples just once, i.e., no data is left out
+# test_generator = data_generator.flow_from_directory(
+#     directory = '../sample_test',
+#     target_size = (image_size, image_size),
+#     batch_size = BATCH_SIZE_TESTING,
+#     class_mode = None,
+#     shuffle = False,
+#     seed = 123
+# )
 
-# Try batch size of 1+ in test_generator & check batch_index & filenames in resulting batches
-'''
-for i in test_generator:
-    #print(test_generator.batch_index, test_generator.batch_size)
-    idx = (test_generator.batch_index - 1) * test_generator.batch_size
-    print(test_generator.filenames[idx : idx + test_generator.batch_size])
-'''
-
-
-test_generator.reset()
-
-pred = model.predict_generator(test_generator, steps = len(test_generator), verbose = 1)
-
-predicted_class_indices = np.argmax(pred, axis = 1)
+# # Try batch size of 1+ in test_generator & check batch_index & filenames in resulting batches
+# '''
+# for i in test_generator:
+#     #print(test_generator.batch_index, test_generator.batch_size)
+#     idx = (test_generator.batch_index - 1) * test_generator.batch_size
+#     print(test_generator.filenames[idx : idx + test_generator.batch_size])
+# '''
 
 
-TEST_DIR = '../sample_test'
-f, ax = plt.subplots(5, 5, figsize = (15, 15))
+# test_generator.reset()
 
-for i in range(0,25):
-    imgBGR = cv2.imread(TEST_DIR + test_generator.filenames[i])
-    imgRGB = cv2.cvtColor(imgBGR, cv2.COLOR_BGR2RGB)
+# pred = model.predict_generator(test_generator, steps = len(test_generator), verbose = 1)
+
+# predicted_class_indices = np.argmax(pred, axis = 1)
+
+
+# TEST_DIR = '../sample_test'
+# f, ax = plt.subplots(5, 5, figsize = (15, 15))
+
+# for i in range(0,25):
+#     imgBGR = cv2.imread(TEST_DIR + test_generator.filenames[i])
+#     imgRGB = cv2.cvtColor(imgBGR, cv2.COLOR_BGR2RGB)
     
-    # a if condition else b
-    predicted_class = "Dog" if predicted_class_indices[i] else "Cat"
+#     # a if condition else b
+#     predicted_class = "Dog" if predicted_class_indices[i] else "Cat"
 
-    ax[i//5, i%5].imshow(imgRGB)
-    ax[i//5, i%5].axis('off')
-    ax[i//5, i%5].set_title("Predicted:{}".format(predicted_class))    
+#     ax[i//5, i%5].imshow(imgRGB)
+#     ax[i//5, i%5].axis('off')
+#     ax[i//5, i%5].set_title("Predicted:{}".format(predicted_class))    
 
-plt.show()
+# plt.show()
 
-results_df = pd.DataFrame(
-    {
-        'id': pd.Series(test_generator.filenames), 
-        'label': pd.Series(predicted_class_indices)
-    })
-results_df['id'] = results_df.id.str.extract('(\d+)')
-results_df['id'] = pd.to_numeric(results_df['id'], errors = 'coerce')
-results_df.sort_values(by='id', inplace = True)
+# results_df = pd.DataFrame(
+#     {
+#         'id': pd.Series(test_generator.filenames), 
+#         'label': pd.Series(predicted_class_indices)
+#     })
+# results_df['id'] = results_df.id.str.extract('(\d+)')
+# results_df['id'] = pd.to_numeric(results_df['id'], errors = 'coerce')
+# results_df.sort_values(by='id', inplace = True)
 
-results_df.to_csv('submission.csv', index=False)
-results_df.head()
+# results_df.to_csv('submission.csv', index=False)
+# results_df.head()
