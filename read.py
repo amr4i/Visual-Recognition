@@ -23,10 +23,10 @@ def load_images(input_path):
 		Images[counter] = [cv2.imread(image, 0) for image in image_class]
 		counter += 1
 
-	for image_class in image_labels:
-		for image in image_class:
-			print image
-		print ""
+	# for image_class in image_labels:
+	# 	for image in image_class:
+	# 		print image
+	# 	print ""
 
 	return Images, image_labels
 

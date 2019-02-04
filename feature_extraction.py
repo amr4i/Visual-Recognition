@@ -21,6 +21,7 @@ import numpy as np
 import cv2
 from matplotlib import pyplot as plt
 
+
 MIN_MATCH_COUNT = 10 
 # img1 = cv2.imread('../train/coca_cola_glass_bottle/N1_6.jpg',0)          # queryImage
 img1 = cv2.imread('../sample_test/easy_multi_3.jpg',0)          # queryImage
@@ -37,6 +38,9 @@ for imgName in os.listdir("../train/vo5_extra_body_volumizing_shampoo"):
 	# find the keypoints and descriptors with SIFT
 	kp1, des1 = sift.detectAndCompute(img1,None)
 	kp2, des2 = sift.detectAndCompute(img2,None)
+
+	print kp1
+
 
 	FLANN_INDEX_KDTREE = 0
 	index_params = dict(algorithm = FLANN_INDEX_KDTREE, trees = 5)
@@ -77,6 +81,8 @@ for imgName in os.listdir("../train/vo5_extra_body_volumizing_shampoo"):
 	else:
 	    print "Not enough matches are found - %d/%d" % (len(good),MIN_MATCH_COUNT)
 	    matchesMask = None
+
+	break
 
 matched_sorted = sorted(matched.items(), key=lambda kv: kv[1])
 print matched_sorted
