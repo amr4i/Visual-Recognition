@@ -4,14 +4,14 @@ from matplotlib import patches
 import cv2
 import os,sys
 
-path = '/home/aarsh/dataset_train/train/3m_high_tack_spray_adhesive/N2_90.jpg'
+path = '/home/aarsh/dataset_train/train/vo5_split_ends_anti_breakage_shampoo/N1_0.jpg'
 
 fig = plt.figure()
 
-xmin = 270
-ymin = 70
-xmax = 355
-ymax = 230
+xmin = 280
+ymin = 120
+xmax = 340
+ymax = 270
 ax = fig.add_axes([0,0,1,1])
 image = plt.imread(path)
 plt.imshow(image)
