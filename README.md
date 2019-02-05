@@ -23,6 +23,18 @@ Use `python resnet.py` to train and save model on you disk. Weingts will be stor
 
 Use `python resnet_categorisation.py` for testing your results.
 
+## Vanilla SIFT Feature Matching
+
+The  code  for  this  part  is  contained  in  the  filevanilla_sift.py,  which  can  be  `runpythonvanilla_sift.py`.   The `functionextract_SIFT_features()`is used to obtain the SIFT fea-tures for all images, `get_img_matches()`is used to perform the complete process and the thirdfunction simply completes the ranking to include the non-matched classes at the end.
+
+## Visual bag of words 
+
+The code for this section can be found in the file `vbow.py`. The file contains of multiple functions forthe different tasks involved. These functions acan be independently called from the main function,according to the tasks desired to be done.
+
+## Bounding BOXES
+
+`make_train.py` returns the csv file with bounding box for each image given the training dataset
+
 
 
 
