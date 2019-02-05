@@ -15,9 +15,12 @@ def load_images(input_path):
 		# image_labels[counter] = [os.path.join(image_folders[counter], f) for f in os.listdir(image_class)]
 		counter += 1;
 
+	if input_path[-1] != '/':
+		input_path = input_path + '/'
+
 	counter = 0
 	for image_class in images_list:
-		image_labels[counter] = [image_name.replace(input_path+"/","") for image_name in image_class]
+		image_labels[counter] = [image_name.replace(input_path,"") for image_name in image_class]
 		counter += 1
 
 	Images = [0]*len(image_class_folders);
