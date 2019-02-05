@@ -31,7 +31,7 @@ OBJECTIVE_FUNCTION = 'categorical_crossentropy'
 LOSS_METRICS = ['accuracy']
 
 # EARLY_STOP_PATIENCE must be < NUM_EPOCHS
-NUM_EPOCHS = 10
+NUM_EPOCHS = 20
 EARLY_STOP_PATIENCE = 3
 
 # These steps value should be proper FACTOR of no.-of-images in train & valid folders respectively
@@ -128,6 +128,7 @@ print("Saved model to disk")
 # model.load_weights("../working/resnet_model.hdf5")
 
 print(fit_history.history.keys())
+
 
 # plt.figure(1, figsize = (15,8)) 
     
