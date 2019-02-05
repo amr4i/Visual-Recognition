@@ -26,7 +26,7 @@ def load_images(input_path):
 	Images = [0]*len(image_class_folders);
 
 	counter = 0;
-	print image_labels
+	# print image_labels
 
 	for image_class in images_list:
 		Images[counter] = [cv2.imread(image, 0) for image in image_class]
