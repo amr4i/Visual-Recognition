@@ -51,7 +51,6 @@ def extract_SIFT_features():
 			kp, des = sift.detectAndCompute(img,None)
 			features.append([kp, des])
 			img_names.append(labels[class_type_id][img_id])
-		break
 	
 	print "features done."
 
@@ -69,7 +68,10 @@ def get_img_matches():
 	# 	features, img_names = pickle.load(f)
 
 	for imgName in os.listdir("../sample_test/"):
+		if(imgName.split(".")[1] != "jpg")
+			continue
 
+		print imgName
 		img1 = cv2.imread("../sample_test/"+imgName)
 		kp1, des1 = sift.detectAndCompute(img1,None)
 
@@ -90,7 +92,7 @@ def get_img_matches():
 			# store all the good matches as per Lowe's ratio test.
 			good = []
 			for m,n in matches:
-			    if m.distance < 0.8*n.distance:
+			    if m.distance < 0.7*n.distance:
 			        good.append(m)
 
 			if len(good)>MIN_MATCH_COUNT:
@@ -126,10 +128,20 @@ def get_img_matches():
 			#     matchesMask = None
 
 		print good_classes
-		ranked = list(reversed(sorted(good_classes, key=good_classes.get)))
-		print ranked
+		predicted_classes = list(reversed(sorted(good_classes, key=good_classes.get)))
 
-		break
+		with open("vanilla_sift_res/classes/"+imgName.split(".")[0]+".txt", "w") as f:
+			for j in predicted_classes:
+				f.write(j+"\n" )
+
+		ranked_images  = []
+		for image_class in predicted_classes:
+			ranked_images += [image_class+"_"+str(f) for f in os.listdir(os.path.join("../train/", image_class))]
+
+		with open("vanilla_sift_res/images/"+imgName.split(".")[0]+".txt", "w") as f:
+			for item in ranked_images:
+				f.write("%s\n" % item)
+
 
 def main():
 	extract_SIFT_features()

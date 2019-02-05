@@ -258,12 +258,12 @@ def predict():
 # ===============================================================
 
 def main():
-	# extract_all_SIFT()
+	extract_all_SIFT()
 	# clustering()
 	# get_image_bag_data()
 	# get_image_hist_data()
 	# class_training()
-	predict()
+	# predict()
 	# cosine_similarity_image_rankings()
 
 if __name__ == "__main__":
