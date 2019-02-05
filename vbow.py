@@ -10,6 +10,7 @@ from sklearn.cluster import KMeans
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 num_labels = 70
@@ -119,7 +120,49 @@ def get_image_hist_data():
 
 # ============================================================
 
-def training():
+def cosine_similarity_image_rankings():
+	with open('image_hist_data.pkl', 'r') as f:
+		train_hist_list, train_image_names = pickle.load(f)
+
+	with open('kmeans_model.pkl', 'r') as f:
+		kmeans = pickle.load(f)
+	
+	test_hist_list = []
+	test_image_names = []
+	for imageFile in os.listdir("../sample_test/"):
+
+		if(imageFile.split(".")[1] != "jpg"):
+			continue
+		print imageFile
+		img = cv2.imread("../sample_test/"+imageFile)
+		kp, des = sift.detectAndCompute(img, None)
+		
+		x = np.zeros(num_labels)
+		nkp = np.size(kp)
+
+		for d in des:
+			idx = kmeans.predict([d])
+			x[idx] += 1.0/nkp
+
+		test_hist_list.append(x)
+		test_image_names.append(imageFile)			
+
+	print "Getting Similarity Score..."
+	sim_score = cosine_similarity(train_hist_list, test_hist_list).T
+	print sim_score.shape
+
+	for i in range(sim_score.shape[0]):
+		print test_image_names[i]
+		score_for_one_test_img = sim_score[i]
+		rank_indices = list(reversed(np.argsort(score_for_one_test_img)))
+		with open("vbow_cos_sim_res/"+test_image_names[i].split(".")[0]+".txt", "w") as f:
+			for j in range(sim_score.shape[1]):
+				f.write(train_image_names[rank_indices[j]].replace('/','_')+"\n" )
+
+
+# ============================================================
+
+def class_training():
 	global classes
 	with open('image_hist_data.pkl', 'r') as f:
 		image_hist_list, image_names = pickle.load(f)
@@ -154,25 +197,25 @@ def training():
 # ================================================================
 
 def predict():
-	global classes
-	# classes = ['vo5_extra_body_volumizing_shampoo', \
-	# 			'coca_cola_glass_bottle', \
-	# 			'nutrigrain_apple_cinnamon', \
-	# 			'palmolive_green', \
-	# 			'detergent', \
-	# 			'aunt_jemima_original_syrup', \
-	# 			'pringles_bbq', \
-	# 			'nice_honey_roasted_almonds', \
-	# 			'expo_marker_red', \
-	# 			'clif_crunch_chocolate_chip', \
-	# 			'vo5_split_ends_anti_breakage_shampoo', \
-	# 			'3m_high_tack_spray_adhesive', \
-	# 			'cheez_it_white_cheddar', \
-	# 			'listerine_green', \
-	# 			'campbells_chicken_noodle_soup', \
-	# 			'cholula_chipotle_hot_sauce']
+	# global classes
+	classes = ['vo5_extra_body_volumizing_shampoo', \
+				'coca_cola_glass_bottle', \
+				'nutrigrain_apple_cinnamon', \
+				'palmolive_green', \
+				'detergent', \
+				'aunt_jemima_original_syrup', \
+				'pringles_bbq', \
+				'nice_honey_roasted_almonds', \
+				'expo_marker_red', \
+				'clif_crunch_chocolate_chip', \
+				'vo5_split_ends_anti_breakage_shampoo', \
+				'3m_high_tack_spray_adhesive', \
+				'cheez_it_white_cheddar', \
+				'listerine_green', \
+				'campbells_chicken_noodle_soup', \
+				'cholula_chipotle_hot_sauce']
 
-	with open("mlp_model_adam.pkl", 'r') as f:
+	with open("rfc_model.pkl", 'r') as f:
 		mlp = pickle.load(f)
 
 	with open('kmeans_model.pkl', 'r') as f:
@@ -194,8 +237,23 @@ def predict():
 		# print x
 
 		res = mlp.predict_proba([x])
-		print imageFile + ":\t "+ classes[np.argmax(res)]
-		print str(res) + "\n"
+		rank_indices = list(reversed(np.argsort(res[0])))
+		# print imageFile + ":\t "+ classes[np.argmax(res)]
+		# print str(res) + "\n"
+		# break
+		predicted_classes = []
+		with open("rfc_model_res/classes/"+imageFile.split(".")[0]+".txt", "w") as f:
+			for j in range(len(rank_indices)):
+				f.write(classes[rank_indices[j]]+"\n" )
+				predicted_classes.append(classes[rank_indices[j]])
+
+		ranked_images  = []
+		for image_class in predicted_classes:
+			ranked_images += [image_class+"_"+str(f) for f in os.listdir(os.path.join("../train/", image_class))]
+
+		with open("rfc_model_res/images/"+imageFile.split(".")[0]+".txt", "w") as f:
+			for item in ranked_images:
+				f.write("%s\n" % item)
 
 # ===============================================================
 
@@ -204,8 +262,9 @@ def main():
 	# clustering()
 	# get_image_bag_data()
 	# get_image_hist_data()
-	training()
+	# class_training()
 	predict()
+	# cosine_similarity_image_rankings()
 
 if __name__ == "__main__":
 	main()
