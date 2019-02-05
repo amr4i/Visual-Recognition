@@ -1,21 +1,3 @@
-# import cv2
-# import numpy as np
-
-# print cv2.__version__
-# img = cv2.imread('../train/detergent/N1_0.jpg')
-# gray= cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-
-# sift = cv2.xfeatures2d.SIFT_create()
-# kp = sift.detect(gray,None)
-
-# # img=cv2.drawKeypoints(gray,kp)
-
-# # cv2.imwrite('sift_keypoints.jpg',img)
-
-
-# img=cv2.drawKeypoints(gray,kp,flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-# cv2.imwrite('sift_keypoints.jpg',img)
-
 import os
 import numpy as np
 import cv2
@@ -68,7 +50,7 @@ def get_img_matches():
 	# 	features, img_names = pickle.load(f)
 
 	for imgName in os.listdir("../sample_test/"):
-		if(imgName.split(".")[1] != "jpg")
+		if(imgName.split(".")[1] != "jpg"):
 			continue
 
 		print imgName
@@ -142,10 +124,59 @@ def get_img_matches():
 			for item in ranked_images:
 				f.write("%s\n" % item)
 
+def add_remaining_images_to_ranking():
+	classes = ['vo5_extra_body_volumizing_shampoo', \
+				'coca_cola_glass_bottle', \
+				'nutrigrain_apple_cinnamon', \
+				'palmolive_green', \
+				'detergent', \
+				'aunt_jemima_original_syrup', \
+				'pringles_bbq', \
+				'nice_honey_roasted_almonds', \
+				'expo_marker_red', \
+				'clif_crunch_chocolate_chip', \
+				'vo5_split_ends_anti_breakage_shampoo', \
+				'3m_high_tack_spray_adhesive', \
+				'cheez_it_white_cheddar', \
+				'listerine_green', \
+				'campbells_chicken_noodle_soup', \
+				'cholula_chipotle_hot_sauce']
+
+	
+	for imgName in os.listdir("../sample_test/"):
+		if(imgName.split(".")[1] != "jpg"):
+			continue
+
+		print imgName
+		classes_available = []
+		classes_to_add = []
+		with open("vanilla_sift_res/classes/"+imgName.split(".")[0]+".txt", "r") as f:
+			for i in f.readlines():
+				if not i.strip() in classes_available:
+					classes_available.append(i.strip())
+		for j in classes:
+			if not j in classes_available:
+				classes_to_add.append(j)
+
+		with open("vanilla_sift_res/classes/"+imgName.split(".")[0]+".txt", "a") as f:
+			for j in classes_to_add:
+				f.write(j+"\n" )
+
+		ranked_images  = []
+		for image_class in classes_to_add:
+			ranked_images += [image_class+"_"+str(f) for f in os.listdir(os.path.join("../train/", image_class))]
+
+		with open("vanilla_sift_res/images/"+imgName.split(".")[0]+".txt", "a") as f:
+			for item in ranked_images:
+				f.write("%s\n" % item)	
+
+
+
 
 def main():
 	extract_SIFT_features()
 	get_img_matches()
+	add_remaining_images_to_ranking()
 
 
 if __name__ == "__main__":

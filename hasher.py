@@ -1,5 +1,6 @@
 import sys,os
 import hashlib
+
 def md5(fname, out_path):
     hash_md5 = hashlib.md5()
     with open(fname, "rb") as f:
@@ -7,7 +8,7 @@ def md5(fname, out_path):
             hash_md5.update(chunk)
     f.close()
 
-    with open(os.path.join(out_path, "hashed_file"), 'w') as g:
+    with open(os.path.join(out_path, file_path.split("/")[-1].split(".")[0]+".md5"), 'w') as g:
     	g.write(hash_md5.hexdigest())
    	g.close()
 
